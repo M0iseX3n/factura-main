@@ -12,12 +12,26 @@
                 <v-card-subtitle>{{ producto.descripcion }}</v-card-subtitle>
                 <v-card-text>Precio: ${{ producto.precio }}</v-card-text>
                 <div class="d-flex align-center">
-                  <v-btn small icon @click="decrementarCantidad(index)">
+                  <v-btn 
+                    small 
+                    icon 
+                    @click="decrementarCantidad(index)"
+                    :disabled="producto.cantidad <= 1"
+                  >
                     <v-icon>mdi-minus</v-icon>
                   </v-btn>
                   <span class="mx-2">{{ producto.cantidad }}</span>
                   <v-btn small icon @click="incrementarCantidad(index)">
                     <v-icon>mdi-plus</v-icon>
+                  </v-btn>
+                  <v-btn 
+                    color="error" 
+                    class="ml-4" 
+                    @click="eliminarProducto(index)"
+                    icon
+                    density="comfortable"
+                  >
+                    <v-icon>mdi-delete</v-icon>
                   </v-btn>
                 </div>
               </div>
@@ -28,6 +42,13 @@
           </v-card>
         </div>
       </v-card-text>
+      
+      <v-card-text class="d-flex justify-end">
+        <div class="text-h6">
+          Total: ${{ calcularTotal }}
+        </div>
+      </v-card-text>
+
       <v-card-actions>
         <v-btn class="ms-auto" text @click="cerrar">Cerrar</v-btn>
       </v-card-actions>
@@ -63,12 +84,21 @@ export default {
       this.$emit('actualizarCantidad', { index, cambio: 1 });
     },
     decrementarCantidad(index) {
-      this.$emit('actualizarCantidad', { index, cambio: -1 });
+      if (this.compras[index].cantidad > 1) {
+        this.$emit('actualizarCantidad', { index, cambio: -1 });
+      }
     }
   },
   watch: {
     show(newVal) {
       this.mostrar = newVal;
+    }
+  },
+  computed: {
+    calcularTotal() {
+      return this.compras.reduce((total, producto) => {
+        return total + (producto.precio * producto.cantidad)
+      }, 0).toFixed(2)
     }
   }
 };
